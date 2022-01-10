@@ -3,7 +3,12 @@ This code computes some interesting statistics for Spotify playlists.
 
 Rather than using the Spotify API itself, this is meant to work with CSV data output by [Exportify](https://github.com/watsonbox/exportify).
 
-Displaying custom names for users and timezone adjustmentts can be specified in a JSON configuration file with the following format:
+## Usage
+
+To generate a full set of statistics and figures for your playlist csv, run
+`python generate_stats.py <path_to_data> <output_path>`
+
+Displaying custom names for users and timezone adjustments can be specified in a JSON configuration file with the following format:
 ```json
 {
     "<spotify_user_id>": {
@@ -16,5 +21,4 @@ Displaying custom names for users and timezone adjustmentts can be specified in 
     }
 }
 ```
-
-Example usage can be found in the main method of `stats.py` as well as in `visuals.ipynb`.
+This can then be used by specifying the `--config_file` argument.

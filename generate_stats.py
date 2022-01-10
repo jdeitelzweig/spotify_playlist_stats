@@ -82,19 +82,25 @@ def main():
     Generates a report of statistics and generates figures with additional information
     '''
     # argparse data, config, output dir
+    # Read command line args
+    parser = argparse.ArgumentParser(description="Obtains stats for a Spotify playlist")
+    parser.add_argument("playlist_data", help="The csv file containing data from Exportify")
+    parser.add_argument("output_dir", help="The name of a directory to output data to")
+    parser.add_argument("--config_file", help="The user configuration file described in README.md")
+    args = parser.parse_args()
 
     # load data
-    config = load_config("config.json")
-    data = read_data("data/2021.csv", config)
+    config = load_config(args.config_file)
+    data = read_data(args.playlist_data, config)
 
     # determine if collaborative
     collaborative = len(get_per_person(data)) > 1
 
     # create output directory
-
+    os.makedirs(args.output_dir, exist_ok=True)
 
     # generate report
-    generate_report("results/test.txt", data, collaborative=collaborative)
+    generate_report(os.path.join(args.output_dir, "stats.txt"), data, collaborative=collaborative)
 
     # generate figures
     # generate_songs_added_graph()
@@ -103,7 +109,6 @@ def main():
     
     # # generate average image
     # cv2.imwrite()
-
     
 
 if __name__ == "__main__":
