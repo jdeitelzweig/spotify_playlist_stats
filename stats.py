@@ -7,30 +7,12 @@ Rather than using the Spotify API itself, this is meant to work with CSV data ou
 https://github.com/watsonbox/exportify
 '''
 
-import csv
-import re
 from collections import Counter, namedtuple, defaultdict
+import csv
 from datetime import datetime
+import json
+import re
 import pytz
-
-PERSON_DICT = {
-    "spotify:user:12135790462": "Josh",
-    "spotify:user:shrey2000": "Shrey",
-    "spotify:user:1248038176": "Jackson",
-    "spotify:user:ja0tvr5t90axnr1gprruxor5f": "Dylan",
-    "spotify:user:12137975671": "Alonso",
-    "spotify:user:nimbus__": "Dylan",
-    "spotify:user:raylizz": "Dylan",
-    "spotify:user:12173409565": "Justin"
-}
-
-TIMEZONE_MAP = {
-    "Alonso": "US/Mountain",
-    "Jackson": "US/Eastern",
-    "Josh": "US/Eastern",
-    "Shrey": "US/Eastern",
-    "Dylan": "US/Eastern"
-}
 
 Addition = namedtuple(
     "Addition", 
@@ -57,13 +39,25 @@ def _extract_date(date_string, timezone=pytz.utc):
     return datetime.fromisoformat(date_string).astimezone(timezone)
 
 
-def _extract_fields(line):
-    adder = PERSON_DICT[line[_convert_column_name('Q')]]
+def _get_default_user_config(sp_id):
+    return {
+        "name": sp_id,
+        "timezone": "US/Eastern"
+    }
+
+
+def load_config(filename):
+    with open(filename, "r") as f:
+        return json.load(f)
+
+
+def _extract_fields(line, config={}):
+    adder = config.get(line[_convert_column_name('Q')], _get_default_user_config(line[_convert_column_name('Q')]))
     return Addition(
         line[_convert_column_name('B')],
         re.split(r"(?<!\\), ", line[_convert_column_name('D')]),
-        adder,
-        _extract_date(line[_convert_column_name('R')], pytz.timezone(TIMEZONE_MAP[adder])),
+        adder["name"],
+        _extract_date(line[_convert_column_name('R')], pytz.timezone(adder["timezone"])),
         _extract_date(line[_convert_column_name('I')]),
         re.split(r"(?<!\\),", line[_convert_column_name('S')]),
         float(line[_convert_column_name('P')]),
@@ -74,7 +68,7 @@ def _extract_fields(line):
     )
 
 
-def read_data(filename):
+def read_data(filename, config={}):
     '''
     Read data from an exportify CSV file and return the songs as a list of Additions
     '''
@@ -83,8 +77,7 @@ def read_data(filename):
         csv_reader = csv.reader(f)
         next(csv_reader)
         for line in csv_reader:
-            data.append(_extract_fields(line))
-
+            data.append(_extract_fields(line, config=config))
     return data
 
 
@@ -146,7 +139,8 @@ def _pprint_tuple(tuple_list, round_second=False):
 
 
 def main():
-    data = read_data("data/2021.csv")
+    config = load_config("config.json")
+    data = read_data("data/2021.csv", config)
 
     print("Popularity by Person")
     _pprint_tuple(get_metric_per_person(data, "popularity"), True)
