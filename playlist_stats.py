@@ -23,6 +23,8 @@ Addition = namedtuple(
     'popularity', 'danceability', 'loudness', 'energy', 'explicit', 'album_cover_url']
 )
 
+STANDARD_SPOTIFY_IMAGE_SIZE = (640, 640)
+
 def _convert_column_name(column):
     return ord(column) - ord('A')
 
@@ -127,17 +129,19 @@ def get_top_genres(adds, n=10, per_person=False):
     return c.most_common(n)
 
 
-def get_metric_per_person(adds, metric_name):
+def get_metric(adds, metric_name, per_person=False):
     '''
     Returns the average value per person for a particular metric
     '''
-    per_person = get_per_person(adds)
+    if per_person:
+        per_person = get_per_person(adds)
+        metrics = []
+        for person, person_adds in per_person.items():
+            metric = sum([add._asdict()[metric_name] for add in person_adds]) / len(person_adds)
+            metrics.append((person, metric))
+        return metrics
 
-    metrics = []
-    for person, adds in per_person.items():
-        metric = sum([add._asdict()[metric_name] for add in adds]) / len(adds)
-        metrics.append((person, metric))
-    return metrics
+    return sum([add._asdict()[metric_name] for add in adds]) / len(adds)
 
 
 def get_highest(adds, metric_name, lowest=False):
@@ -147,11 +151,6 @@ def get_highest(adds, metric_name, lowest=False):
     if lowest:
         return min(adds, key=lambda x:x._asdict()[metric_name])
     return max(adds, key=lambda x:x._asdict()[metric_name])
-
-
-def _pprint_tuple(tuple_list, round_second=False):
-    for first, second in tuple_list:
-        print(f"{first}: {round(second, 2) if round_second else second}")
 
 
 def get_release_hist(adds):
@@ -198,8 +197,8 @@ async def _get_image_from_url(client, url):
     req = client.get(url)
     nparr = np.frombuffer((await req).content, np.uint8)
     img_np = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    if img_np.shape[0:2] != (640, 640):
-        img_np = cv2.resize(img_np, (640, 640))
+    if img_np.shape[0:2] != STANDARD_SPOTIFY_IMAGE_SIZE:
+        img_np = cv2.resize(img_np, STANDARD_SPOTIFY_IMAGE_SIZE)
     return img_np
 
 
@@ -211,31 +210,9 @@ async def _get_all_images(urls):
 
 
 def get_average_album_cover(adds):
+    '''
+    Computes a pixelwise average across all album covers in the playlist
+    '''
     urls = [add.album_cover_url for add in adds]
     imgs = asyncio.run(_get_all_images(urls))
     return np.mean(imgs, axis=0) / 255.0
-
-
-def main():
-    config = load_config("config.json")
-    data = read_data("data/original.csv", config)
-
-    print("Popularity by Person")
-    _pprint_tuple(get_metric_per_person(data, "popularity"), round_second=True)
-    print()
-
-    print("Newest song:")
-    oldest = get_highest(data, "time_released")
-    print(f"{oldest.name}, {oldest.time_released.date()}")
-    print()
-
-    print("Top artist per person:")
-    _pprint_tuple(get_top_artists(data, per_person=True))
-    print()
-
-    print("Top 5 genres:")
-    _pprint_tuple(get_top_genres(data, n=5))
-    
-
-if __name__ == "__main__":
-    main()
