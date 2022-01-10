@@ -1,8 +1,6 @@
 '''
 Functions to aid in obtaining stats from Spotify playlists. 
 
-Currently working with collaborative playlists, may need to be slightly adjusted to work with single user playlists
-
 Rather than using the Spotify API itself, this is meant to work with CSV data output by Exportify
 https://github.com/watsonbox/exportify
 '''
