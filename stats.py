@@ -12,6 +12,8 @@ import csv
 from datetime import datetime
 import json
 import re
+
+import numpy as np
 import pytz
 
 Addition = namedtuple(
@@ -136,6 +138,38 @@ def get_highest(adds, metric_name, lowest=False):
 def _pprint_tuple(tuple_list, round_second=False):
     for first, second in tuple_list:
         print(f"{first}: {round(second, 2) if round_second else second}")
+
+
+def get_release_hist(adds):
+    per_person = get_per_person(adds)
+    years_per_person = []
+    for person_adds in per_person.values():
+        person_years = [add.time_released.year for add in person_adds]
+        years_per_person.append(person_years)
+
+    flat_years = _flatten(years_per_person)
+    year_bins = list(range(min(flat_years), max(flat_years)+1))
+
+    add_years = np.zeros((len(per_person), len(year_bins)))
+
+    for i, person_years in enumerate(years_per_person):
+        hist, _ = np.histogram(person_years, bins=year_bins + [year_bins[-1] + 1])
+        add_years[i] = hist / hist.sum()
+
+    return add_years, year_bins
+
+
+def get_time_added_hist(adds):
+    per_person = get_per_person(adds)
+
+    add_times = np.zeros((len(per_person), 24))
+    for i, person_adds in enumerate(per_person.values()):
+        hourly_adds = [0] * 24
+        for add in person_adds:
+            hourly_adds[add.time_added.hour % 24] += 1
+        add_times[i] = np.array(hourly_adds) / sum(hourly_adds)
+
+    return add_times
 
 
 def main():
