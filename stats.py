@@ -5,19 +5,22 @@ Rather than using the Spotify API itself, this is meant to work with CSV data ou
 https://github.com/watsonbox/exportify
 '''
 
+import asyncio
 from collections import Counter, namedtuple, defaultdict
 import csv
 from datetime import datetime
 import json
 import re
 
+import cv2
+import httpx
 import numpy as np
 import pytz
 
 Addition = namedtuple(
     "Addition", 
     ['name', 'artists', 'adder', 'time_added', 'time_released', 'genres', \
-    'popularity', 'danceability', 'loudness', 'energy', 'explicit']
+    'popularity', 'danceability', 'loudness', 'energy', 'explicit', 'album_cover_url']
 )
 
 def _convert_column_name(column):
@@ -65,6 +68,7 @@ def _extract_fields(line, config={}):
         float(line[_convert_column_name('W')]),
         float(line[_convert_column_name('U')]),
         line[_convert_column_name('O')] == "true",
+        line[_convert_column_name('J')],
     )
 
 
@@ -190,9 +194,31 @@ def get_time_added_hist(adds):
     return add_times
 
 
+async def _get_image_from_url(client, url):
+    req = client.get(url)
+    nparr = np.frombuffer((await req).content, np.uint8)
+    img_np = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    if img_np.shape[0:2] != (640, 640):
+        img_np = cv2.resize(img_np, (640, 640))
+    return img_np
+
+
+async def _get_all_images(urls):
+    async with httpx.AsyncClient() as client:
+        tasks = (_get_image_from_url(client, url) for url in urls)
+        reqs = await asyncio.gather(*tasks)
+    return np.array(reqs)
+
+
+def get_average_album_cover(adds):
+    urls = [add.album_cover_url for add in adds]
+    imgs = asyncio.run(_get_all_images(urls))
+    return np.mean(imgs, axis=0) / 255.0
+
+
 def main():
     config = load_config("config.json")
-    data = read_data("data/2021.csv", config)
+    data = read_data("data/original.csv", config)
 
     print("Popularity by Person")
     _pprint_tuple(get_metric_per_person(data, "popularity"), round_second=True)
