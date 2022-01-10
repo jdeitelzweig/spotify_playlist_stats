@@ -141,6 +141,10 @@ def _pprint_tuple(tuple_list, round_second=False):
 
 
 def get_release_hist(adds):
+    '''
+    Returns a histogram of the release years of songs added by a particular person
+    Normalizes the histogram per person
+    '''
     per_person = get_per_person(adds)
     years_per_person = []
     for person_adds in per_person.values():
@@ -160,6 +164,10 @@ def get_release_hist(adds):
 
 
 def get_time_added_hist(adds):
+    '''
+    Returns a histogram of times each song was added to the playlist
+    Normalizes the histogram per person
+    '''
     per_person = get_per_person(adds)
 
     add_times = np.zeros((len(per_person), 24))
