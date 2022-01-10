@@ -97,18 +97,30 @@ def _flatten(t):
     return [item for sublist in t for item in sublist if item]
 
 
-def get_top_artists(adds, n=20):
+def get_top_artists(adds, n=20, per_person=False):
     '''
     Returns the top artists for a playlist
     '''
+    if per_person:
+        most_common = []
+        for person, person_adds in get_per_person(adds).items():
+            c = Counter(_flatten([add.artists for add in person_adds]))
+            most_common.append((person, c.most_common(1)[0]))
+        return most_common
     c = Counter(_flatten([add.artists for add in adds]))
     return c.most_common(n)
 
 
-def get_top_genres(adds, n=10):
+def get_top_genres(adds, n=10, per_person=False):
     '''
     Returns the top genres for a playlist
     '''
+    if per_person:
+        most_common = []
+        for person, person_adds in get_per_person(adds).items():
+            c = Counter(_flatten([add.genres for add in person_adds]))
+            most_common.append((person, c.most_common(1)[0]))
+        return most_common
     c = Counter(_flatten([add.genres for add in adds]))
     return c.most_common(n)
 
@@ -185,7 +197,7 @@ def main():
     data = read_data("data/2021.csv", config)
 
     print("Popularity by Person")
-    _pprint_tuple(get_metric_per_person(data, "popularity"), True)
+    _pprint_tuple(get_metric_per_person(data, "popularity"), round_second=True)
     print()
 
     print("Newest song:")
@@ -193,8 +205,12 @@ def main():
     print(f"{oldest.name}, {oldest.time_released.date()}")
     print()
 
+    print("Top artist per person:")
+    _pprint_tuple(get_top_artists(data, per_person=True))
+    print()
+
     print("Top 5 genres:")
-    _pprint_tuple(get_top_genres(data, 5))
+    _pprint_tuple(get_top_genres(data, n=5))
     
 
 if __name__ == "__main__":
