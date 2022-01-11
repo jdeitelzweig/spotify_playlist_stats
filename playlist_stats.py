@@ -109,7 +109,8 @@ def get_top_artists(adds, n=20, per_person=False):
         most_common = []
         for person, person_adds in get_per_person(adds).items():
             c = Counter(_flatten([add.artists for add in person_adds]))
-            most_common.append((person, c.most_common(1)[0]))
+            if c:
+                most_common.append((person, c.most_common(1)[0]))
         return most_common
     c = Counter(_flatten([add.artists for add in adds]))
     return c.most_common(n)
@@ -123,7 +124,8 @@ def get_top_genres(adds, n=10, per_person=False):
         most_common = []
         for person, person_adds in get_per_person(adds).items():
             c = Counter(_flatten([add.genres for add in person_adds]))
-            most_common.append((person, c.most_common(1)[0]))
+            if c:
+                most_common.append((person, c.most_common(1)[0]))
         return most_common
     c = Counter(_flatten([add.genres for add in adds]))
     return c.most_common(n)
@@ -215,4 +217,4 @@ def get_average_album_cover(adds):
     '''
     urls = [add.album_cover_url for add in adds]
     imgs = asyncio.run(_get_all_images(urls))
-    return np.mean(imgs, axis=0) / 255.0
+    return np.mean(imgs, axis=0)
