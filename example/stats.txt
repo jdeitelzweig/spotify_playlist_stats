@@ -1,0 +1,93 @@
+##############################
+Playlist Statistics
+##############################
+Top 5 artists:
+Payday: 6
+Tyler\, The Creator: 6
+Childish Gambino: 3
+easy life: 3
+khai dreams: 3
+
+Top 5 genres:
+rap: 68
+pop: 62
+hip hop: 53
+indie pop: 39
+rock: 38
+
+popularity: 50.11
+loudness: -7.92
+energy: 0.61
+danceability: 0.64
+explicit: 0.31
+
+##############################
+Statistics Per Person
+##############################
+Top artist:
+Josh: ('Payday', 6)
+Jackson: ('Thomas Headon', 3)
+Alonso: ('beef', 2)
+Shrey: ('Childish Gambino', 3)
+Dylan: ('Beach House', 3)
+
+Top genre:
+Josh: ('rap', 40)
+Jackson: ('indie pop', 16)
+Alonso: ('rap', 6)
+Shrey: ('pop', 27)
+Dylan: ('rock', 12)
+
+popularity:
+Josh: 44.5
+Jackson: 46.68
+Alonso: 52.0
+Shrey: 56.72
+Dylan: 57.34
+
+loudness:
+Josh: -8.63
+Jackson: -7.19
+Alonso: -5.94
+Shrey: -7.7
+Dylan: -8.73
+
+energy:
+Josh: 0.55
+Jackson: 0.63
+Alonso: 0.74
+Shrey: 0.62
+Dylan: 0.61
+
+danceability:
+Josh: 0.63
+Jackson: 0.67
+Alonso: 0.62
+Shrey: 0.68
+Dylan: 0.56
+
+explicit:
+Josh: 0.44
+Jackson: 0.25
+Alonso: 0.3
+Shrey: 0.32
+Dylan: 0.08
+
+##############################
+Song Statistics
+##############################
+Highest popularity: Peaches (feat. Daniel Caesar & Giveon), 91.0, Dylan
+Lowest popularity: I Gotta Boo-Boo, 0.0, Alonso
+
+Highest loudness: drink my piss you nasty slut yeah yeah, 0.977, Alonso
+Lowest loudness: Intro, -27.296, Josh
+
+Highest energy: Last Rites / Loved to Deth - Remastered, 0.995, Alonso
+Lowest energy: Something You Can't Return To, 0.0119, Josh
+
+Highest danceability: Blow My High (Members Only), 0.959, Shrey
+Lowest danceability: Black Dahlia, 0.145, Dylan
+
+Highest time_released: Passing Through (Can't the Future Just Wait), 2021-12-11 05:00:00+00:00, Josh
+Lowest time_released: Lujon, 1960-01-01 00:00:00+00:00, Josh
+
