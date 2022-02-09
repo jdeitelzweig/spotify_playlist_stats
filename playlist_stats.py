@@ -58,20 +58,24 @@ def load_config(filename):
 
 def _extract_fields(line, config={}):
     adder = config.get(line[_convert_column_name('Q')], _get_default_user_config(line[_convert_column_name('Q')]))
-    return Addition(
-        line[_convert_column_name('B')],
-        re.split(r"(?<!\\), ", line[_convert_column_name('D')]),
-        adder["name"],
-        _extract_date(line[_convert_column_name('R')], pytz.timezone(adder["timezone"])),
-        _extract_date(line[_convert_column_name('I')]),
-        re.split(r"(?<!\\),", line[_convert_column_name('S')]),
-        float(line[_convert_column_name('P')]),
-        float(line[_convert_column_name('T')]),
-        float(line[_convert_column_name('W')]),
-        float(line[_convert_column_name('U')]),
-        line[_convert_column_name('O')] == "true",
-        line[_convert_column_name('J')],
-    )
+    try:
+        return Addition(
+            line[_convert_column_name('B')],
+            re.split(r"(?<!\\), ", line[_convert_column_name('D')]),
+            adder["name"],
+            _extract_date(line[_convert_column_name('R')], pytz.timezone(adder["timezone"])),
+            _extract_date(line[_convert_column_name('I')]),
+            
+                re.split(r"(?<!\\),", line[_convert_column_name('S')]),
+            float(line[_convert_column_name('P')]),
+            float(line[_convert_column_name('T')]),
+            float(line[_convert_column_name('W')]),
+            float(line[_convert_column_name('U')]),
+            line[_convert_column_name('O')] == "true",
+            line[_convert_column_name('J')],
+        )
+    except IndexError:
+            raise ValueError("Make sure to include artist and album data on Exportify")
 
 
 def read_data(filename, config={}):
